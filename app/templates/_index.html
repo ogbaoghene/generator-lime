@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html lang="en" class="lt-ie9 lt-ie8 lt-ie7 no-js"> <![endif]-->
+<!--[if IE 7]> <html lang="en" class="lt-ie9 lt-ie8 no-js"> <![endif]-->
+<!--[if IE 8]> <html lang="en" class="lt-ie9 no-js"> <![endif]-->
+<!--[if gt IE 8]> <!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="UTF-8">
+        <title><%= _.slugify(projectName) %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
+        <link rel="shortcut icon" href="/favicon.ico">
+
+        <link rel="stylesheet" href="styles/styles.css">
+
+        <% if (!includeAutoprefixer) { %><script src="bower_components/prefixfree/prefixfree.min.js"></script><% } %>
+        <!--[if lt IE 9]>  
+            <script src="bower_components/jquery-legacy/dist/jquery.js"></script>  
+        <![endif]-->  
+        <!--[if gte IE 9]><!-->  
+            <script src="bower_components/jquery-modern/dist/jquery.js"></script>  
+        <!--<![endif]-->
+        <script src="bower_components/modernizr/modernizr.js"></script>
+        <script src="scripts/scripts.js"></script>
+    </head>
+    <body class="preload">
+
+        <h1>'Allo, 'Allo!</h1>
+        <p>Always a pleasure scaffolding your apps.</p>
+        <p>You now have</p>
+        <ul>
+            <li>jQuery</li>
+            <li>lime-utils</li>
+            <li>Modernizr</li>
+            <% if (!includeAutoprefixer) { %><li>Prefix-free</li><% } %>
+            <% if (includeStyleguide) { %><li><a href="styleguide/index.html">Styleguide</a></li><% } %>
+        </ul>
+
+        <h2>Template List</h2>
+        <nav>
+            <!-- template hook -->
+        </nav>
+
+    </body>
+</html>

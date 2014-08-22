@@ -1,0 +1,20 @@
+{
+  "name": "<%= _.slugify(projectName) %>",
+  "author": "<%= authorName %>",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "jit-grunt": "^0.8.0",
+    "time-grunt": "^0.4.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-connect": "^0.8.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-concurrent": "^0.5.0",
+    "grunt-contrib-watch": "^0.6.1",<% if (includeLibSass) { %>
+    "grunt-sass": "^0.14.0"<% } else { %>
+    "grunt-contrib-sass": "^0.8.0"<% } %><% if (includeAutoprefixer) { %>,
+    "grunt-autoprefixer": "^1.0.0"<% } %><% if (includeStyleguide) { %>,
+    "grunt-styleguide": "^0.2.15"<% } %>
+  }
+}

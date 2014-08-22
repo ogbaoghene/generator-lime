@@ -1,0 +1,11 @@
+{
+  "name": "<%= _.slugify(projectName) %>",
+  "dependencies": {
+    "jquery-legacy": "jquery#1.11.1",
+    "jquery-modern": "jquery#~2.1.1",
+    "lime-utils": "",
+    "modernizr": "~2.6.2"<% if (!includeAutoprefixer) { %>,
+    "prefixfree": ""<% } %>
+  }
+}
+
