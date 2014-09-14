@@ -15,7 +15,7 @@ var LimeGenerator = yeoman.generators.Base.extend({
     if (!this.options['skip-welcome-message']) {
       this.log(require('yosay')());
       this.log(chalk.magenta(
-        'Out of the box I include jQuery, Modernizr, prefixfree, lime-utils, and a ' +
+        'Out of the box I include jQuery, Modernizr, lime-utils, and a ' +
         'Gruntfile.js to build your app.'
       ));
     }
@@ -23,28 +23,43 @@ var LimeGenerator = yeoman.generators.Base.extend({
     var prompts = [{
       name: 'projectName',
       message: 'Project name?'
-    },
-    {
+    },{
       name: 'authorName',
       message: 'Your name?' 
-    },
-    {
+    },{
+      type: 'confirm',
+      name: 'addLibSass',
+      message: 'Would you like to use libsass?',
+      default: true
+    },{
       type: 'checkbox',
       name: 'features',
       message: 'What more would you like?',
       choices: [{
-        name: 'Generate styleguide?',
+        name: 'Styleguide',
         value: 'includeStyleguide',
-        checked: true
-      },{
-        name: 'Replace prefixfree with autoprefixer?',
-        value: 'includeAutoprefixer',
         checked: false
       },{
-        name: 'Would you like to use libsass?',
-        value: 'includeLibSass',
-        checked: true
+        name: 'Javascript',
+        value: 'includeJavascript',
+        checked: false
+      },{
+        name: 'Images',
+        value: 'includeImages',
+        checked: false
       }]
+    },{
+      type: 'confirm',
+      name: 'addContainer',
+      message: 'Generate containing directory?',
+      default: false
+    },{when: function (response) {
+        return response.addContainer;
+      },
+      type: 'confirm',
+      name: 'includeAutoprefixer',
+      message: 'Replace prefixfree with autoprefixer?',
+      default: true
     }];
 
     this.prompt(prompts, function (props) {
@@ -56,10 +71,14 @@ var LimeGenerator = yeoman.generators.Base.extend({
 
       this.projectName = props.projectName;
       this.authorName = props.authorName;
+      this.addLibsass = props.addLibsass;
+
+      this.addContainer = props.addContainer;
+      this.includeAutoprefixer = props.includeAutoprefixer;
 
       this.includeStyleguide = hasFeature('includeStyleguide');
-      this.includeAutoprefixer = hasFeature('includeAutoprefixer');
-      this.includeLibSass = hasFeature('includeLibSass');
+      this.includeJavascript = hasFeature('includeJavascript');
+      this.includeImages = hasFeature('includeImages');
 
       done();
     }.bind(this));
@@ -69,52 +88,89 @@ var LimeGenerator = yeoman.generators.Base.extend({
     this.template('Gruntfile.js');
   },
 
-  projectfiles: function () {
-    this.template('_package.json', 'package.json');
-    this.template('_bower.json', 'bower.json');
-    this.copy('jshintrc', '.jshintrc');
-    this.copy('editorconfig', '.editorconfig');
-  },
-
-  templates: function () {
-    this.copy('screen.scss', 'dev/sass/screen.scss');
-    this.copy('_variables.scss', 'dev/sass/_variables.scss');
-    this.template('_index.html', 'dev/index.html');
-  },
-
   dev: function () {
-    this.directory('dev');
-    this.mkdir('dev/images');
-    this.mkdir('dev/sass/base');
-    this.mkdir('dev/sass/modules');
-    this.mkdir('dev/sass/partials');
-    this.mkdir('dev/sass/theme');
-    this.mkdir('dev/sass/vendors');
-    this.mkdir('dev/scripts');
+    if (this.addContainer) {
+      this.dest.mkdir('dev');
+      this.dest.mkdir('dev/sass');
+      this.dest.mkdir('dev/sass/base');
+      this.dest.mkdir('dev/sass/modules');
+      this.dest.mkdir('dev/sass/partials');
+      this.dest.mkdir('dev/sass/theme');
+      this.dest.mkdir('dev/sass/vendors');
 
-    if (this.includeStyleguide) {
-      this.copy('styleguide.md', 'dev/sass/styleguide.md');
+      if (this.includeJavascript) {
+        this.dest.mkdir('dev/js');
+      }
+
+      if (this.includeJavascript) {
+        this.dest.mkdir('dev/images');
+      }
+
+      if (this.includeStyleguide) {
+        this.src.copy('styleguide.md', 'dev/sass/styleguide.md');
+      }
+    } else {
+      this.dest.mkdir('sass');
+      this.dest.mkdir('sass/base');
+      this.dest.mkdir('sass/modules');
+      this.dest.mkdir('sass/partials');
+      this.dest.mkdir('sass/theme');
+      this.dest.mkdir('sass/vendors');
+
+      if (this.includeJavascript) {
+        this.mkdir('js');
+      }
+
+      if (this.includeJavascript) {
+        this.dest.mkdir('images');
+      }
+
+      if (this.includeStyleguide) {
+        this.src.copy('styleguide.md', 'sass/styleguide.md');
+      }
     }
   },
 
-  install: function () {
-    this.on('end', function () {
+  projectfiles: function () {
+    this.template('_package.json', 'package.json');
+    this.template('_bower.json', 'bower.json');
 
-      if (!this.options['skip-install']) {
-        this.installDependencies({
-          skipMessage: this.options['skip-install-message'],
-          skipInstall: this.options['skip-install']
-        });
-      }
-    });
+    if (this.addContainer) {
+      this.src.copy('jshintrc', '.jshintrc');
+      this.src.copy('editorconfig', '.editorconfig');
+      this.src.copy('favicon.ico', 'dev/favicon.ico');
+    }
   },
+
+  templates: function () {
+    if (this.addContainer) {
+      this.src.copy('screen.scss', 'dev/sass/screen.scss');
+      this.src.copy('_variables.scss', 'dev/sass/_variables.scss');
+      this.template('_index.html', 'dev/index.html');
+    } else {
+      this.src.copy('screen.scss', 'sass/screen.scss');
+      this.src.copy('_variables.scss', 'sass/_variables.scss');
+    }
+  },
+
+  // install: function () {
+  //   this.on('end', function () {
+
+  //     if (!this.options['skip-install']) {
+  //       this.installDependencies({
+  //         skipMessage: this.options['skip-install-message'],
+  //         skipInstall: this.options['skip-install']
+  //       });
+  //     }
+  //   });
+  // },
 
   config: function() {
     this.config.set('project', this.projectName);
     this.config.set('author', this.authorName);
     this.config.set('styleguide', this.includeStyleguide);
     this.config.set('autoprefixer', this.includeAutoprefixer);
-    this.config.set('libsass', this.includeLibSass);
+    this.config.set('libsass', this.addLibsass);
   }
 });
  

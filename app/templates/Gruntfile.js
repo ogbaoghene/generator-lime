@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 
   // Configurable paths
   var config = {
-    dev: 'dev',
+    dev: 'dev/',
     build: '_build',
     dist: '_dist'
   };
@@ -32,32 +32,32 @@ module.exports = function (grunt) {
         files: ['Gruntfile.js']
       },<% if (includeAutoprefixer) { %>
       sass: {
-        files: ['<%%= config.dev %>/sass/**/*.{scss,sass}'],
+        files: ['<%%= config.dev %>sass/**/*.{scss,sass}'],
         tasks: ['sass:build', 'autoprefixer:build']
       },<% } else { %>
       sass: {
-        files: ['<%%= config.dev %>/sass/**/*.{scss,sass}'],
+        files: ['<%%= config.dev %>sass/**/*.{scss,sass}'],
         tasks: ['sass:build']
-      },<% } %>
+      },<% } %><% if (includeJavascript) { %>
       js: {
-        files: ['<%%= config.dev %>/scripts/{,*/}*.js'],
+        files: ['<%%= config.dev %>js/{,*/}*.js'],
         tasks: ['concat:build']
-      },<% if (includeStyleguide) { %>      
+      },<% } %><% if (includeStyleguide) { %>
       styleguide: {
-        files: ['<%%= config.dev %>/sass/**/*.{scss,sass}', '<%%= config.dev %>/sass/styleguide.md'],
+        files: ['<%%= config.dev %>sass/**/*.{scss,sass}', '<%%= config.dev %>sass/styleguide.md'],
         tasks: ['styleguide', 'copy:styleguide']
       },<% } %>
       livereload: {
         options: {
           livereload: '<%%= connect.options.livereload %>'
         },
-        files: [
-          '<%%= config.dev %>/index.html',
-          '<%%= config.dev %>/templates/{,*/}*.html',
-          '<%%= config.build %>/styles/{,*/}*.css',
-          '<%%= config.build %>/scripts/{,*/}*.js',<% if (includeStyleguide) { %> 
-          '<%%= config.build %>/styleguide/{,*/}*.html',<% } %>
-          '<%%= config.dev %>/images/{,*/}*'
+        files: [<% if (addContainer) { %> 
+          '<%%= config.dev %>index.html',<% } %>
+          '<%%= config.dev %>templates/{,*/}*.html',
+          '<%%= config.build %>/styles/{,*/}*.css'<% if (includeStyleguide) { %>,
+          '<%%= config.build %>/styleguide/{,*/}*.html'<% } %><% if (includeJavascript) { %>,
+          '<%%= config.build %>/js/{,*/}*.js'<% } %><% if (includeImages) { %>,
+          '<%%= config.dev %>images/{,*/}*'<% } %>
         ]
       }
     },
@@ -96,7 +96,7 @@ module.exports = function (grunt) {
 
     // Compiles Sass to CSS and generates necessary files if requested
     sass: {
-      options: {<% if (includeLibSass) { %>
+      options: {<% if (addLibsass) { %>
         sourceMap: false,
         includePaths: ['bower_components'],
         // imagePath: 
@@ -104,29 +104,29 @@ module.exports = function (grunt) {
         sourcemap: false,
         loadPath: 'bower_components'
       <% } %>},
-      dist: {<% if (includeLibSass) { %>
+      dist: {<% if (addLibsass) { %>
         outputStyle: 'compressed',
         files: {
-          '<%%= config.dist %>/styles/styles.min.css': '<%%= config.dev %>/sass/screen.scss'
+          '<%%= config.dist %>/styles/styles.min.css': '<%%= config.dev %>sass/screen.scss'
         }
         <% } else { %>
         options: {
           style: 'compressed'
         },
         files: {
-          '<%%= config.dist %>/styles/styles.min.css': '<%%= config.dev %>/sass/screen.scss'
+          '<%%= config.dist %>/styles/styles.min.css': '<%%= config.dev %>sass/screen.scss'
         }
       <% } %>},
-      build: {<% if (includeLibSass) { %>
+      build: {<% if (addLibsass) { %>
         files: {
-          '<%%= config.build %>/styles/styles.css': '<%%= config.dev %>/sass/screen.scss'
+          '<%%= config.build %>/styles/styles.css': '<%%= config.dev %>sass/screen.scss'
         }
         <% } else { %>
         options: {
           style: 'expanded'
         },
         files: {
-          '<%%= config.build %>/styles/styles.css': '<%%= config.dev %>/sass/screen.scss'
+          '<%%= config.build %>/styles/styles.css': '<%%= config.dev %>sass/screen.scss'
         }
       <% } %>}
     },<% if (includeAutoprefixer) { %>
@@ -150,6 +150,7 @@ module.exports = function (grunt) {
       }
     },<% } %><% if (includeStyleguide) { %>
 
+    // Generate a styleguide
     styleguide: {
       options: {
         //template: {
@@ -161,10 +162,10 @@ module.exports = function (grunt) {
       },
       all: {
         files: [{
-         '<%%= config.build %>/styleguide': '<%%= config.dev %>/sass/screen.scss'
+         '<%%= config.build %>/styleguide': '<%%= config.dev %>sass/screen.scss'
         }]
       }
-    },<% } %>
+    },<% } %><% if (includeJavascript) { %>
 
     // Concatenate JS files
     concat: {
@@ -173,9 +174,9 @@ module.exports = function (grunt) {
       },
       build: {
         src: [
-          '<%%= config.dev %>/scripts/{,*/}*.js'
+          '<%%= config.dev %>js/{,*/}*.js'
         ],
-        dest: '<%%= config.build %>/scripts/scripts.js'
+        dest: '<%%= config.build %>/js/scripts.js'
       }
     },
 
@@ -186,10 +187,10 @@ module.exports = function (grunt) {
       // },
       dist: {
         files: {
-          '<%%= config.dist %>/scripts/scripts.min.js': ['<%%= config.build %>/scripts/scripts.js']
+          '<%%= config.dist %>/js/scripts.min.js': ['<%%= config.build %>/js/scripts.js']
         }
       }
-    },
+    },<% } %>
 
     // Copies remaining files to places other tasks can use
     copy: {<% if (includeStyleguide) { %>
@@ -201,16 +202,14 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
-      dev: [<% if (includeStyleguide) { %>
-        'sass:build',
-        'styleguide',
-        'concat'<% } else { %>
-        'sass:build',
+      dev: [
+        'sass:build'<% if (includeStyleguide) { %>,
+        'styleguide'<% } %><% if (includeJavascript) { %>,
         'concat'<% } %>
       ],
       dist: [
-        'sass:dist',
-        'concat',
+        'sass:dist'<% if (includeJavascript) { %>,
+        'concat'<% } %>
         // 'imagemin',
         // 'svgmin'
       ]
@@ -221,12 +220,12 @@ module.exports = function (grunt) {
 
   grunt.registerTask('deploy', 'generate production-ready files', [
     'clean:dist',
-    'concurrent:dist',<% if (includeAutoprefixer) { %>
-    'autoprefixer:dist',<% } %>
-    'uglify',
+    'concurrent:dist'<% if (includeAutoprefixer) { %>,
+    'autoprefixer:dist'<% } %><% if (includeJavascript) { %>,
+    'uglify'<% } %>
   ]);
 
-  grunt.registerTask('docs', 'generate KSS styleguide', [
+  grunt.registerTask('dev', 'generate KSS styleguide', [
     'clean:build',
     'concurrent:dev',<% if (includeAutoprefixer) { %>
     'autoprefixer:build',<% } %><% if (includeStyleguide) { %>
@@ -235,7 +234,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('serve', 'start the server and preview your project', function (target) {
     grunt.task.run([
-      'docs',
+      'dev',
       'connect:livereload',
       'watch'
     ]);
