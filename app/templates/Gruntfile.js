@@ -12,8 +12,8 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     dev: 'dev/',
-    build: '_build',
-    dist: '_dist'
+    build: 'build',
+    dist: 'dist'
   };
 
   // Define the configuration for all the tasks
@@ -192,6 +192,8 @@ module.exports = function (grunt) {
       }
     },<% } %>
 
+    // Automatically inject Bower components files
+
     // Copies remaining files to places other tasks can use
     copy: {<% if (includeStyleguide) { %>
       styleguide: {
@@ -229,7 +231,7 @@ module.exports = function (grunt) {
     'clean:build',
     'concurrent:dev',<% if (includeAutoprefixer) { %>
     'autoprefixer:build',<% } %><% if (includeStyleguide) { %>
-    'copy:styleguide',<% } %>
+    'copy:styleguide'<% } %>
   ]);
 
   grunt.registerTask('serve', 'start the server and preview your project', function (target) {

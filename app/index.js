@@ -96,13 +96,13 @@ var LimeGenerator = yeoman.generators.Base.extend({
       this.dest.mkdir('dev/sass/modules');
       this.dest.mkdir('dev/sass/partials');
       this.dest.mkdir('dev/sass/theme');
-      this.dest.mkdir('dev/sass/vendors');
+      this.dest.mkdir('dev/sass/javascript');
 
       if (this.includeJavascript) {
         this.dest.mkdir('dev/js');
       }
 
-      if (this.includeJavascript) {
+      if (this.includeImages) {
         this.dest.mkdir('dev/images');
       }
 
@@ -115,13 +115,13 @@ var LimeGenerator = yeoman.generators.Base.extend({
       this.dest.mkdir('sass/modules');
       this.dest.mkdir('sass/partials');
       this.dest.mkdir('sass/theme');
-      this.dest.mkdir('sass/vendors');
+      this.dest.mkdir('sass/javascript');
 
       if (this.includeJavascript) {
         this.mkdir('js');
       }
 
-      if (this.includeJavascript) {
+      if (this.includeImages) {
         this.dest.mkdir('images');
       }
 
@@ -153,17 +153,17 @@ var LimeGenerator = yeoman.generators.Base.extend({
     }
   },
 
-  // install: function () {
-  //   this.on('end', function () {
+  install: function () {
+    this.on('end', function () {
 
-  //     if (!this.options['skip-install']) {
-  //       this.installDependencies({
-  //         skipMessage: this.options['skip-install-message'],
-  //         skipInstall: this.options['skip-install']
-  //       });
-  //     }
-  //   });
-  // },
+      if (!this.options['skip-install']) {
+        this.installDependencies({
+          skipMessage: this.options['skip-install-message'],
+          skipInstall: this.options['skip-install']
+        });
+      }
+    });
+  },
 
   config: function() {
     this.config.set('project', this.projectName);

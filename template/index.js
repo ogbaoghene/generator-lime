@@ -8,8 +8,7 @@ var LimeGenerator = yeoman.generators.NamedBase.extend({
   },
 
   writing: function () {
-    this.directory('dev');
-    this.mkdir('dev/templates');
+    this.dest.mkdir('dev/templates');
     this.template('_template.html', 'dev/templates/'+ this.name +'.html');
   },
 
